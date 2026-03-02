@@ -1,28 +1,28 @@
 ---
-title: Структура папок
-description: Як організувати папки для кращої продуктивності
+title: Folder Structure
+description: How to organize folders for better productivity
 ---
 import { FileTree } from '@astrojs/starlight/components';
 
-## 🏗️ Навіщо потрібна структура папок?
+## 🏗️ Why does folder structure matter?
 
-#### Правильна організація папок:
-* Зменшує час на пошук потрібних ресурсів.
-* Полегшує співпрацю в команді.
-* Зпрощує масштабування проєкту.
+#### Proper folder organization:
+* Reduces time spent searching for assets.
+* Improves team collaboration.
+* Makes projects easier to scale.
 
 
 
-## 🎯 Головна ідея
-Багато новачків створюють окремі папки і підпапки для кожного типу ресурсу (`Scripts`, `Prefabs`, `Materials`), цей підхід часто створює *"**іллюзію порядку**"*.
-Хоча він і здається логічним - насправді всі ці елементи працюють разом, а тому немає сенсу розділяти їх за типом.
+## 🎯 Core idea
+Many beginners create separate folders and subfolders by asset type (`Scripts`, `Prefabs`, `Materials`). This often creates an *"**illusion**"* of order.
+While it may seem logical, these elements usually work together, so splitting strictly by type is rarely optimal.
 
-Спочатку такий підхід може працювати, але з часом він стає приносити все більше і більше хаосу, оскільки все змішується в одній папці.
-Наприклад, у папці `Scripts` можуть бути скрипти для гравця, ворогів та UI.
-Всі ці елементи не зв'язані між собою, але вони всі знаходяться в одній папці, що взагалі не допомагає в організації.
+This can work at first, but over time it introduces more chaos as unrelated things pile up in the same type folders.
+For example, a `Scripts` folder may contain player scripts, enemy scripts, and UI scripts.
+These are not tightly related to each other, but they still end up in one place, which hurts organization.
 
 <details open>
-    <summary>Приклад поганої структури папок</summary>
+    <summary>Example of a poor folder structure</summary>
 
     <FileTree>
     - Scripts
@@ -48,23 +48,23 @@ import { FileTree } from '@astrojs/starlight/components';
 </details>
 
 :::note
-Пам'ятайте, що існує багато способів організувати папки, і немає єдиного правильного варіанту.
+There are many valid ways to structure folders, and there is no single correct solution.
 
-Спосіб що буде показано далі - це лише один з можливих підходів, який добре працює для багатьох проєктів, але ви завжди можете адаптувати його під свої потреби.
+The approach below is one practical pattern that works well for many projects. Adapt it to your needs.
 :::
 
+## 📂 Feature-based approach
+In a feature-based approach, folders are organized by game functionality *"**features**"*, not by asset type.
 
-## 📂 Фічевий підхід
-У фічевому підході папки організовані за функціоналом або *"**фічами**"* гри, а не за типом ресурсу.
+Instead of separate top-level folders like `Scripts`, `Prefabs`, and `Sounds`, group things by features such as `Player`, `Enemy`, and `UI`.
 
-Наприклад, замість того, щоб мати окремі папки для `Scripts`, `Prefabs` та `Sounds`, ми можемо організувати папки за фічами, такими як `Player`, `Enemy` та `UI`.
+Each feature folder contains all assets related to that feature, regardless of type.
+For example, a `Player` folder may include controller scripts, prefabs, and player-related sounds.
 
-Кожна з цих папок буде містити всі ресурси, пов'язані з цією фічею, незалежно від їх типу.
-Наприклад, папка `Player` може містити скрипти для контролера гравця, префаби гравця та звуки, пов'язані з гравцем.
+This keeps everything related to one feature together, making maintenance and navigation much easier.
 
-Цей підхід допомагає зберігати всі ресурси, пов'язані з певною фічею, разом, що полегшує їх пошук та підтримку.
 <details open>
-    <summary>Приклад хорошої структури папок</summary>
+    <summary>Example of a good folder structure</summary>
 
     <FileTree>
     - Features
@@ -87,25 +87,25 @@ import { FileTree } from '@astrojs/starlight/components';
 </details>
 
 :::note
-Фічевий підхід вирішує проблему *"призначення"* ресурсів.
-Але ієрархія папок всеодно грає важливу роль.
+A feature-based structure solves the resource *"ownership"* problem.
+But folder hierarchy still matters.
 :::
 
 :::tip
-При необхідності - в папках для *"фіч"* ми можемо мати підпапки для типів, щоб ще більше організувати ресурси.
+If needed, use type-based subfolders inside *"feature"* folders for extra clarity.
 
-Отак:
+Like this:
 <FileTree>
 - Player
-    - ... **Загальні** речі пов'язані з гравцем
+    - ... **General** player-related assets
     - Prefabs
-        - ... **Префаби** граців
-    - Sounds 
-        - ... **Звуки** пов'язані з гравцем або його діями
+        - ... **Player prefabs**
+    - Sounds
+        - ... **Player sounds** or action sounds
 </FileTree>
 :::
 
-## 📌 Підсумок
+## 📌 Summary
 
-- Варто організовувати папки **призначенням**, а не за типом ресурсів.
-- Бажано **використовувати підпапки з типами** для ще більшої структури.
+- Organize folders by **purpose/feature**, not only by asset type.
+- Use **type-based subfolders** inside a feature when additional structure is helpful.

@@ -10,13 +10,19 @@ export default defineConfig({
     integrations: [
         starlight({
             title: 'Unitorial',
+            defaultLocale: 'root',
             locales: {
                 root: {
-                    label: 'Українська',
-                    lang: 'uk',
+                    label: 'English',
+                    lang: 'en',
                 },
+                uk: {
+                    label: 'Українська'
+                },
+                nob: {
+                    label: "Norsk Bokmål",
+                }
             },
-            defaultLocale: 'uk',
             social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/UTUBMIR' }],
             sidebar: [
                 {
@@ -30,12 +36,12 @@ export default defineConfig({
                         }
                     ],
                 },
-                {
-                    label: 'Reference',
-                    translations: { 'uk': 'Референси' },
-                    collapsed: true,
-                    autogenerate: { directory: 'reference' },
-                },
+                // {
+                //     label: 'Reference',
+                //     translations: { 'uk': 'Референси' },
+                //     collapsed: true,
+                //     autogenerate: { directory: 'reference' },
+                // },
             ],
         }),
     ],

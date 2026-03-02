@@ -1,0 +1,111 @@
+﻿---
+title: Mappestruktur
+description: Hvordan organisere mapper for bedre produktivitet
+---
+import { FileTree } from '@astrojs/starlight/components';
+
+## 🏗️ Hvorfor er mappestruktur viktig?
+
+#### God mappeorganisering:
+* Reduserer tiden brukt på å finne ressurser.
+* Gjør samarbeid i team enklere.
+* Gjør prosjektet enklere å skalere.
+
+
+
+## 🎯 Hovedideen
+Mange nybegynnere lager egne mapper og undermapper for hver ressurstype (`Scripts`, `Prefabs`, `Materials`). Dette skaper ofte en *"**illusjon**"* av orden.
+Selv om det virker logisk, jobber disse elementene som regel sammen, så det er sjelden optimalt å dele alt kun etter type.
+
+Dette kan fungere i starten, men over tid skaper det mer kaos fordi urelaterte ting havner i de samme typemappene.
+For eksempel kan mappen `Scripts` inneholde skript for spiller, fiender og UI.
+Disse henger ikke tett sammen, men ligger likevel på samme sted, noe som gjør strukturen dårligere.
+
+<details open>
+    <summary>Eksempel på en dårlig mappestruktur</summary>
+
+    <FileTree>
+    - Scripts
+        - Controllers
+            - PlayerController.cs
+            - EnemyAI.cs
+        - Factories
+            - PlayerFactory.cs
+            - EnemyFactory.cs
+        - UI
+            - Entities
+                - PlayerUI.cs
+                - EnemyUI.cs
+            - Button.cs
+    - Prefabs
+        - Player.prefab
+        - Enemy.prefab
+        - Button.prefab
+    - Sounds
+        - EnemySound.mp3
+        - AttackSound.mp3
+    </FileTree>
+</details>
+
+:::note
+Det finnes mange gode måter å organisere mapper på, og det finnes ingen eneste riktig løsning.
+
+Metoden under er én praktisk tilnærming som fungerer godt i mange prosjekter. Tilpass den etter dine behov.
+:::
+
+## 📂 Funksjonsbasert tilnærming
+I en funksjonsbasert tilnærming organiseres mapper etter funksjonalitet *"**features**"*, ikke etter ressurstype.
+
+I stedet for separate toppnivåmapper som `Scripts`, `Prefabs` og `Sounds`, grupperer du etter funksjoner som `Player`, `Enemy` og `UI`.
+
+Hver funksjonsmappe inneholder alle ressurser knyttet til den funksjonen, uavhengig av type.
+For eksempel kan mappen `Player` inneholde kontrollskript, prefaber og spillerrelaterte lyder.
+
+Dette holder alt som hører til én funksjon samlet, og gjør vedlikehold og navigasjon enklere.
+
+<details open>
+    <summary>Eksempel på en god mappestruktur</summary>
+
+    <FileTree>
+    - Features
+        - Player
+            - PlayerController.cs
+            - PlayerFactory.cs
+            - PlayerUI.cs
+            - Player.prefab
+            - PlayerSound.mp3
+        - Enemy
+            - EnemyAI.cs
+            - EnemyFactory.cs
+            - EnemyUI.cs
+            - Enemy.prefab
+            - EnemySound.mp3
+    - UI
+        - Button.cs
+        - Button.prefab
+    </FileTree>
+</details>
+
+:::note
+En funksjonsbasert struktur løser problemet med *"ressurstilhørighet"*.
+Men mappehierarkiet er fortsatt viktig.
+:::
+
+:::tip
+Ved behov kan du bruke typebaserte undermapper inne i *"funksjonsmapper"* for ekstra oversikt.
+
+Slik:
+<FileTree>
+- Player
+    - ... **Generelle** spillerrelaterte ressurser
+    - Prefabs
+        - ... **Spillerprefaber**
+    - Sounds
+        - ... **Spillerlyder** eller lyder knyttet til handlinger
+</FileTree>
+:::
+
+## 📌 Oppsummering
+
+- Organiser mapper etter **formål/funksjon**, ikke bare etter ressurstype.
+- Bruk **typebaserte undermapper** inne i en funksjon når du trenger mer struktur.
