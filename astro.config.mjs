@@ -4,8 +4,8 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
-    site: "https://utubmir.github.io",
-    base: "/unitorial",
+    site: "https://utubmir.github.io/unitorial/",
+    base: "/unitorial/",
     output: "static",
     integrations: [
         starlight({
