@@ -1,0 +1,208 @@
+---
+title: Menysystem
+description: Hvordan bygge et fleksibelt menysystem og hvilke tilnærminger som er verdt å bruke
+---
+import { FileTree } from '@astrojs/starlight/components';
+import CustomIframe from '../../../../../components/CustomIframe.astro';
+
+## 🧭 Hvorfor tenke gjennom et menysystem?
+
+#### Et godt menysystem:
+* Skaper et godt førsteinntrykk av spillet.
+* Gjør navigasjonen enklere for spilleren.
+* Lar deg gjenbruke UI-skjermer og komponenter.
+* Gjør det enklere å vedlikeholde `Main Menu`, `Pause Menu`, `Settings` og dialogvinduer.
+
+## 🎯 Hovedideen
+En vanlig feil er å bygge hver menyskjerm som et separat, isolert sett med knapper og skript som åpner hverandre direkte.
+
+I starten virker dette raskt og praktisk, men over tid begynner en slik struktur å falle fra hverandre:
+knappene inneholder logikk for overganger, innstillinger lagres litt overalt, og `Main Menu`, `Pause Menu` og `Settings` oppfører seg som tre ulike systemer.
+
+En bedre tilnærming er å tenke på menyen som **ett navigasjonssystem**, der skjermer, modale vinduer, spillerinput og overganger fungerer sammen.
+
+<details open>
+    <summary>Eksempel på en skjør tilnærming</summary>
+
+    <FileTree>
+    - UI
+        - MainMenu
+            - PlayButton.cs
+            - SettingsButton.cs
+            - QuitButton.cs
+        - Settings
+            - AudioButton.cs
+            - VideoButton.cs
+            - BackButton.cs
+        - PauseMenu
+            - ResumeButton.cs
+            - RestartButton.cs
+            - SettingsButton.cs
+    - Managers
+        - AudioManager.cs
+        - SceneLoader.cs
+    </FileTree>
+</details>
+
+:::note
+Det finnes ikke én eneste riktig måte å bygge menyer på.
+
+Men i de fleste tilfeller gir en tilnærming med felles regler for åpning, lukking, navigasjon og overganger mellom skjermer det beste resultatet.
+:::
+
+## 🧱 Vanlige tilnærminger
+
+### 1. Bytte ut én skjerm med en annen
+Den enkleste tilnærmingen: du har en rotbeholder der bare én skjerm er aktiv om gangen.
+
+Passer godt for:
+* `Main Menu`
+* `Settings`
+* enkle opplæringer eller små prosjekter
+
+Ulemper:
+* vanskelig å jobbe med modale vinduer
+* mindre praktisk å gå tilbake
+* vanskeligere å gjenbruke den samme skjermen flere steder
+
+### 2. Stakkbasert tilnærming
+Skjermer og vinduer åpnes oppå hverandre etter stakkprinsippet: `Push` for å åpne, `Pop` for å gå tilbake.
+
+Passer godt for:
+* `Pause Menu`
+* `Settings` oppå en annen meny
+* bekreftelsesvinduer som `Are you sure?`
+
+Fordeler:
+* en naturlig `Back`-knapp
+* enkelt å åpne modale vinduer oppå gjeldende skjerm
+* praktisk å dele menyen inn i lag
+
+### 3. Tilnærming med tilstander eller flow
+I mer komplekse prosjekter er det bedre å se på menyen som et sett med tilstander eller overgangsforløp: `Boot -> Main Menu -> Save Select -> Settings -> Gameplay -> Pause`.
+
+Passer godt for:
+* store spill
+* menyer med mange betingelser
+* prosjekter der forutsigbare overganger er viktige
+
+Fordeler:
+* færre tilfeldige overganger
+* lettere å teste
+* enklere å kontrollere hva som kan åpnes på et gitt tidspunkt
+
+:::tip
+I praksis kombineres disse tilnærmingene ofte:
+
+`Main Menu` fungerer som et sett med skjermer, og en stakk brukes oppå dette for modale vinduer og undermenyer.
+:::
+
+## 🧩 Hva gjør et menysystem virkelig sterkt?
+
+### Ett felles kontrollpunkt
+Det er nyttig å ha én `MenuController` eller `MenuManager` som:
+* åpner skjermer
+* lukker dem
+* håndterer `Back`
+* spiller av overgangsanimasjoner
+* bytter input mellom mus, tastatur og gamepad
+
+### Ansvarsdeling
+Ikke bland alt inn i én klasse.
+
+Det er nyttig å dele opp i:
+* **View**: knapper, animasjoner, visuelt uttrykk
+* **Logic**: åpning, lukking, navigasjon
+* **Data/Config**: menyer, overgangsbaner, standardfokus, lokalisering
+
+### Gjenbruk av skjermer
+`Settings`, `Confirmation Dialog`, `Keybind Screen` eller `Save Slot Selector` trengs ofte flere steder.
+
+Hvis disse skjermene ikke er tett knyttet til én bestemt meny, kan du bruke dem både fra `Main Menu` og `Pause Menu`.
+
+### Forutsigbar navigasjon
+Spilleren skal ikke måtte gjette:
+* hva som skjer etter å ha trykket `Escape`
+* hvor `Back`-knappen sender dem
+* hvilket element som har fokus akkurat nå
+
+Det er spesielt viktig å planlegge navigasjon for tastatur og gamepad fra starten av, ikke bare for mus.
+
+I Unity finnes det allerede et godt grunnlag for dette:
+* `EventSystem` styrer hvilket UI-element som er valgt akkurat nå
+* `Selectable`-elementer (`Button`, `Slider`, `Toggle`) har innebygd `Navigation`
+* `Input System UI Input Module` eller `Standalone Input Module` hjelper deg med å koble navigasjon fra tastatur, gamepad og mus inn i ett system
+
+Du trenger altså ikke å finne opp navigasjon fra bunnen av, men det er viktig å **bevisst konfigurere** fokus, overgangsretninger og oppførselen til `Back`-knappen.
+
+### Like regler for overganger
+Animasjoner, forsinkelser, bekreftelseslyder og logikken for å åpne menyer bør være konsekvente.
+
+Når hver skjerm er laget på sin egen måte, begynner menyen raskt å føles "billig", selv om den ser pen ut.
+
+## 🎮 Eksempler i Unity
+
+### Main Menu
+I Unity lages `Main Menu` ofte som en egen `Canvas` eller som et sett med paneler inni én `Canvas`.
+
+For et lite prosjekt er dette ofte nok: `Play`, `Settings`, `Quit`, og bytte mellom underskjermer kan gjøres ved å aktivere og deaktivere paneler.
+
+### Settings
+En innstillingsskjerm er praktisk å bygge med Unitys standard UI-komponenter:
+* `Slider` for volum
+* `Toggle` for valg som `Fullscreen`
+* `Dropdown` eller `TMP_Dropdown` for å velge oppløsning eller kvalitet
+
+Her er det viktig ikke bare å vise at verdier endres, men også å bestemme hvilke innstillinger som brukes umiddelbart, og hvilke som først brukes etter `Apply`.
+
+### Pause Menu
+I Unity er `Pause Menu` ofte bare enda et menylag oppå spillet.
+
+Her fungerer den stakkbaserte tilnærmingen godt: åpne `Pause Menu`, åpne `Settings` oppå den, trykk `Back`, og gå tilbake til forrige skjerm uten å miste konteksten.
+
+### Modale vinduer
+For en `Confirmation Dialog` som `Exit to Main Menu?` eller `Delete Save?` er Unity-tilnærmingen også praktisk:
+et separat panel blokkerer interaksjon med menyen under helt til spilleren bekrefter eller avbryter handlingen.
+
+I slike tilfeller er det nyttig å definere standard valgt element med en gang, slik at fokus allerede ligger på `Cancel` eller `Confirm` når vinduet åpnes.
+
+## 📂 Eksempel på en sunn struktur
+
+<details open>
+    <summary>Eksempel på organisering av menysystemet</summary>
+
+    <FileTree>
+    - UI
+        - MenuSystem
+            - MenuController.cs
+            - MenuStack.cs
+            - MenuInputRouter.cs
+            - MenuTransitionPlayer.cs
+            - Screens
+                - MainMenuView.prefab
+                - PauseMenuView.prefab
+                - SettingsView.prefab
+                - SaveSelectView.prefab
+            - Modals
+                - ConfirmationModal.prefab
+            - Config
+                - MenuRoutes.asset
+                - DefaultFocus.asset
+    </FileTree>
+</details>
+
+:::note
+Poenget er ikke de konkrete mappenavnene, men at menysystemet har sitt eget tydelige ansvarsområde og ikke er spredt utover hele prosjektet.
+:::
+
+## 🧪 Interaktiv demo
+
+
+<CustomIframe src="../../../../menu-system-demo.html" />
+
+
+## 📌 Oppsummering
+
+- Tenk på menyen som et **navigasjonssystem**, ikke bare som et sett med knapper.
+- For enkle tilfeller fungerer **å bytte én skjerm**, men for fleksibilitet er en **stakk** eller **tilstander** som regel bedre.
+- Det beste resultatet kommer fra **én felles kontroller**, gjenbrukbare skjermer og forutsigbare regler for navigasjon.

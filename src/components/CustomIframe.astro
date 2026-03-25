@@ -1,0 +1,73 @@
+---
+interface Props {
+    src: string;
+    title?: string;
+    buttonLabel?: string;
+}
+
+const {
+    src,
+    title = 'Інтерактивна демонстрація',
+    buttonLabel = 'Fullscreen',
+} = Astro.props;
+
+const iframeId = `custom-iframe-${Math.random().toString(36).slice(2, 10)}`;
+const shellId = `${iframeId}-shell`;
+---
+
+<div id={shellId} class="custom-iframe-shell">
+    <button
+        class="custom-iframe-fullscreen"
+        type="button"
+        onclick={`const shell=document.getElementById('${shellId}'); if (!shell) return; if (document.fullscreenElement === shell) { document.exitFullscreen(); } else { shell.requestFullscreen(); }`}
+    >
+        {buttonLabel}
+    </button>
+
+    <iframe
+        title={title}
+        class="custom-iframe-frame"
+        src={src}
+        loading="lazy"
+        allowfullscreen
+    ></iframe>
+</div>
+
+<style>
+    .custom-iframe-shell {
+        position: relative;
+        display: grid;
+        min-height: 70vh;
+    }
+
+    .custom-iframe-shell:fullscreen {
+        width: 100vw;
+        height: 100vh;
+        padding: 0;
+        background: var(--sl-color-black);
+    }
+
+    .custom-iframe-fullscreen {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 2;
+        padding: 0.5rem 0.9rem;
+        border: 1px solid var(--sl-color-gray-4);
+        background: rgb(0 0 0 / 0.8);
+        color: var(--sl-color-white);
+        cursor: pointer;
+    }
+
+    .custom-iframe-frame {
+        display: block;
+        width: 100%;
+        height: 100%;
+        min-height: 70vh;
+        border: 0;
+    }
+
+    .custom-iframe-shell:fullscreen .custom-iframe-frame {
+        min-height: 100vh;
+    }
+</style>

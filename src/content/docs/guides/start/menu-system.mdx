@@ -1,0 +1,208 @@
+---
+title: Menu System
+description: How to build a flexible menu system and which approaches are worth using
+---
+import { FileTree } from '@astrojs/starlight/components';
+import CustomIframe from '../../../../components/CustomIframe.astro';
+
+## 🧭 Why think through a menu system?
+
+#### A solid menu system:
+* Creates a strong first impression of the game.
+* Makes navigation easier for the player.
+* Lets you reuse UI screens and components.
+* Simplifies support for `Main Menu`, `Pause Menu`, `Settings`, and dialog windows.
+
+## 🎯 Core idea
+A common mistake is to build every menu screen as a separate isolated set of buttons and scripts that directly open one another.
+
+At first this feels quick and convenient, but over time that structure starts to break down:
+buttons contain transition logic, settings get stored wherever, and `Main Menu`, `Pause Menu`, and `Settings` behave like three separate systems.
+
+A better approach is to think of the menu as **one navigation system**, where screens, modal windows, player input, and transitions work together.
+
+<details open>
+    <summary>Example of a fragile approach</summary>
+
+    <FileTree>
+    - UI
+        - MainMenu
+            - PlayButton.cs
+            - SettingsButton.cs
+            - QuitButton.cs
+        - Settings
+            - AudioButton.cs
+            - VideoButton.cs
+            - BackButton.cs
+        - PauseMenu
+            - ResumeButton.cs
+            - RestartButton.cs
+            - SettingsButton.cs
+    - Managers
+        - AudioManager.cs
+        - SceneLoader.cs
+    </FileTree>
+</details>
+
+:::note
+There is no single correct way to build menus.
+
+But in most cases, the best results come from an approach where the menu shares consistent rules for opening, closing, navigation, and transitions between screens.
+:::
+
+## 🧱 Common approaches
+
+### 1. Replacing one screen with another
+The simplest approach: you have a root container where only one screen is active at a time.
+
+Works well for:
+* `Main Menu`
+* `Settings`
+* simple tutorials or small projects
+
+Cons:
+* hard to work with modal windows
+* going back is less convenient
+* harder to reuse the same screen in different places
+
+### 2. Stack-based approach
+Screens and windows open on top of one another using a stack principle: `Push` to open, `Pop` to go back.
+
+Works well for:
+* `Pause Menu`
+* `Settings` on top of another menu
+* confirmation windows like `Are you sure?`
+
+Pros:
+* a natural `Back` button
+* easy to open modals on top of the current screen
+* convenient to split the menu into layers
+
+### 3. State- or flow-based approach
+In more complex projects, it is better to think of the menu as a set of states or transition scenarios: `Boot -> Main Menu -> Save Select -> Settings -> Gameplay -> Pause`.
+
+Works well for:
+* large games
+* menus with many conditions
+* projects where predictable transitions matter
+
+Pros:
+* fewer accidental transitions
+* easier to test
+* easier to control what can be opened at a given moment
+
+:::tip
+In practice, these approaches are often combined:
+
+`Main Menu` works as a set of screens, and a stack is used on top of it for modal windows and submenus.
+:::
+
+## 🧩 What makes a menu system truly strong?
+
+### A single control point
+It is useful to have one `MenuController` or `MenuManager` that:
+* opens screens
+* closes them
+* handles `Back`
+* plays transition animations
+* switches input between mouse, keyboard, and gamepad
+
+### Separation of responsibilities
+Do not mix everything into one class.
+
+It helps to separate:
+* **View**: buttons, animations, visuals
+* **Logic**: opening, closing, navigation
+* **Data/Config**: menu item lists, transition routes, default focus, localization
+
+### Reusing screens
+`Settings`, `Confirmation Dialog`, `Keybind Screen`, or `Save Slot Selector` are often needed in different places.
+
+If those screens are not tightly coupled to a single menu, you can use them from both `Main Menu` and `Pause Menu`.
+
+### Predictable navigation
+The player should not have to guess:
+* what happens after pressing `Escape`
+* where the `Back` button returns them
+* which element is currently focused
+
+It is especially important to plan keyboard and gamepad navigation from the start, not just mouse interaction.
+
+Unity already gives you a solid foundation for this:
+* `EventSystem` manages the currently selected UI element
+* `Selectable` elements (`Button`, `Slider`, `Toggle`) include built-in `Navigation`
+* `Input System UI Input Module` or `Standalone Input Module` help connect keyboard, gamepad, and mouse navigation into one system
+
+So you do not need to invent navigation from scratch, but it is important to **configure** focus, transition directions, and `Back` button behavior intentionally.
+
+### Consistent transition rules
+Animations, delays, confirmation sounds, and menu opening logic should feel consistent.
+
+When every screen is implemented in its own way, the menu quickly starts to feel "cheap", even if it looks visually polished.
+
+## 🎮 Examples in Unity
+
+### Main Menu
+In Unity, `Main Menu` is often built as a separate `Canvas` or as a set of panels inside one `Canvas`.
+
+For a small project this is often enough: `Play`, `Settings`, `Quit`, and switching between sub-screens can be done by activating and deactivating panels.
+
+### Settings
+A settings screen is convenient to build with Unity's standard UI components:
+* `Slider` for volume
+* `Toggle` for options like `Fullscreen`
+* `Dropdown` or `TMP_Dropdown` for choosing resolution or quality
+
+Here it matters not only to show value changes, but also to decide which settings apply instantly and which apply only after `Apply`.
+
+### Pause Menu
+In Unity, `Pause Menu` is often just another menu layer on top of gameplay.
+
+The stack-based approach works well here: open `Pause Menu`, open `Settings` on top of it, press `Back`, and return to the previous screen without losing context.
+
+### Modal windows
+For a `Confirmation Dialog` like `Exit to Main Menu?` or `Delete Save?`, the Unity approach is convenient as well:
+a separate panel blocks interaction with the lower menu until the player confirms or cancels the action.
+
+In these cases it is useful to define the default selected element right away, so after the window opens the focus is already on `Cancel` or `Confirm`.
+
+## 📂 Example of a healthy structure
+
+<details open>
+    <summary>Example of organizing a menu system</summary>
+
+    <FileTree>
+    - UI
+        - MenuSystem
+            - MenuController.cs
+            - MenuStack.cs
+            - MenuInputRouter.cs
+            - MenuTransitionPlayer.cs
+            - Screens
+                - MainMenuView.prefab
+                - PauseMenuView.prefab
+                - SettingsView.prefab
+                - SaveSelectView.prefab
+            - Modals
+                - ConfirmationModal.prefab
+            - Config
+                - MenuRoutes.asset
+                - DefaultFocus.asset
+    </FileTree>
+</details>
+
+:::note
+The point is not the specific folder names, but that the menu system should have its own clear area of responsibility instead of being scattered across the whole project.
+:::
+
+## 🧪 Interactive demo
+
+
+<CustomIframe src="../../../../menu-system-demo.html" />
+
+
+## 📌 Summary
+
+- Think about the menu as a **navigation system**, not just a set of buttons.
+- For simple cases, **replacing one screen** works fine; for flexibility, a **stack** or **states** is usually better.
+- The best result comes from a **single controller**, reusable screens, and predictable navigation rules.
