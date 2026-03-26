@@ -11,6 +11,11 @@ const {
     buttonLabel = 'Fullscreen',
 } = Astro.props;
 
+const isAbsoluteUrl = /^[a-z][a-z\d+\-.]*:/i.test(src);
+const normalizedSrc = isAbsoluteUrl
+    ? src
+    : new URL(src, Astro.url).pathname;
+
 const iframeId = `custom-iframe-${Math.random().toString(36).slice(2, 10)}`;
 const shellId = `${iframeId}-shell`;
 ---
@@ -27,7 +32,7 @@ const shellId = `${iframeId}-shell`;
     <iframe
         title={title}
         class="custom-iframe-frame"
-        src={src}
+        src={normalizedSrc}
         loading="lazy"
         allowfullscreen
     ></iframe>
